@@ -1,12 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import TextField from "@material-ui/core/TextField";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import { createUser } from "../../Services/authService";
+import { getCompanies } from "../../Services/authService";
 import Alert from "@material-ui/lab/Alert";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import InputLabel from "@material-ui/core/InputLabel";
+import MenuItem from "@material-ui/core/MenuItem";
+import FormControl from "@material-ui/core/FormControl";
+import Select from "@material-ui/core/Select";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -31,7 +36,7 @@ const CreateUser = () => {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
-
+  const [companies, setCompanies] = useState([]);
   const [data, setData] = useState({
     userName: "",
     password: "",
@@ -80,7 +85,6 @@ const CreateUser = () => {
           setErrorMessage("Something went wrong or server error...");
         }
       } catch (error) {
-        console.log(error);
         setLoading(false);
       }
     }
@@ -89,6 +93,20 @@ const CreateUser = () => {
       setErrorMessage(null);
     }, 3000);
   };
+
+  let getCompanyData = async () => {
+    try {
+      let { data } = await getCompanies();
+
+      if (data.status === 0) {
+        setCompanies(data.companies);
+      }
+    } catch (error) {}
+  };
+
+  useEffect(() => {
+    getCompanyData();
+  }, []);
 
   return (
     <Container component="main" maxWidth="xs">
@@ -128,17 +146,33 @@ const CreateUser = () => {
             value={confirmPassword}
             onChange={handelChange}
           />
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            name="company"
-            label="Company"
-            type="text"
-            value={company}
-            onChange={handelChange}
-          />
+
+          <FormControl variant="outlined" fullWidth margin="normal">
+            <InputLabel id="demo-simple-select-outlined-label">
+              Company
+            </InputLabel>
+            <Select
+              labelId="demo-simple-select-outlined-label"
+              id="demo-simple-select-outlined"
+              label="Company"
+              fullWidth
+              onChange={handelChange}
+              name="company"
+              value={company}
+            >
+              <MenuItem value="">
+                <em>None</em>
+              </MenuItem>
+              {companies &&
+                companies.map((item, index) => {
+                  return (
+                    <MenuItem value={item} key={index}>
+                      {item}
+                    </MenuItem>
+                  );
+                })}
+            </Select>
+          </FormControl>
           <Alert
             variant="filled"
             severity="error"

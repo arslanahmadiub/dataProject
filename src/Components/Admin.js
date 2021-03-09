@@ -24,6 +24,7 @@ import UploadCSV from "./AdminSubComponent/UploadCSV";
 import AllData from "./AdminSubComponent/AllData";
 import AllUser from "./AdminSubComponent/AllUser";
 import { useHistory } from "react-router-dom";
+import UserPanel from "./AdminSubComponent/UserPanel";
 
 const drawerWidth = 240;
 
@@ -85,6 +86,11 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function PersistentDrawerLeft() {
+  let siteAddress = window.location.href;
+  let finalUrl = siteAddress.slice(
+    siteAddress.lastIndexOf("/") + 1,
+    siteAddress.length
+  );
   const classes = useStyles();
   const theme = useTheme();
   const [open, setOpen] = React.useState(true);
@@ -97,7 +103,9 @@ export default function PersistentDrawerLeft() {
     setOpen(false);
   };
 
-  const [fragment, setFragment] = useState("CSV");
+  const [fragment, setFragment] = useState(
+    finalUrl === "admin" ? "CSV" : "USER_PANEL"
+  );
 
   let loadFragment = () => {
     switch (fragment) {
@@ -109,12 +117,16 @@ export default function PersistentDrawerLeft() {
         return <AllData />;
       case "User":
         return <AllUser />;
+      case "USER_PANEL":
+        return <UserPanel />;
       default:
         break;
     }
   };
 
   let handelLogout = () => {
+    sessionStorage.removeItem("userData");
+    sessionStorage.removeItem("role");
     history.push("/");
   };
 
@@ -137,7 +149,9 @@ export default function PersistentDrawerLeft() {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap>
-            Data App Admin Panel
+            {finalUrl === "admin"
+              ? "Data App Admin Panel"
+              : "Data App User Panel"}
           </Typography>
         </Toolbar>
       </AppBar>
@@ -171,30 +185,42 @@ export default function PersistentDrawerLeft() {
         <Divider />
         <div className={classes.drawerContainer}>
           <List>
-            <ListItem button onClick={() => setFragment("CSV")}>
-              <ListItemIcon>
-                <ListAltIcon />
-              </ListItemIcon>
-              <ListItemText primary="Upload CSV" />
-            </ListItem>
-            <ListItem button onClick={() => setFragment("Create")}>
-              <ListItemIcon>
-                <PersonAddIcon />
-              </ListItemIcon>
-              <ListItemText primary="Create User" />
-            </ListItem>
-            <ListItem button onClick={() => setFragment("Data")}>
-              <ListItemIcon>
-                <StorageIcon />
-              </ListItemIcon>
-              <ListItemText primary="All Data" />
-            </ListItem>
-            <ListItem button onClick={() => setFragment("User")}>
-              <ListItemIcon>
-                <PeopleIcon />
-              </ListItemIcon>
-              <ListItemText primary="All User" />
-            </ListItem>
+            {finalUrl === "user" ? (
+              <ListItem button onClick={() => setFragment("USER_PANEL")}>
+                <ListItemIcon>
+                  <ListAltIcon />
+                </ListItemIcon>
+                <ListItemText primary="User Data" />
+              </ListItem>
+            ) : (
+              <>
+                <ListItem button onClick={() => setFragment("CSV")}>
+                  <ListItemIcon>
+                    <ListAltIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Upload CSV" />
+                </ListItem>
+
+                <ListItem button onClick={() => setFragment("Create")}>
+                  <ListItemIcon>
+                    <PersonAddIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Create User" />
+                </ListItem>
+                <ListItem button onClick={() => setFragment("Data")}>
+                  <ListItemIcon>
+                    <StorageIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="All Data" />
+                </ListItem>
+                <ListItem button onClick={() => setFragment("User")}>
+                  <ListItemIcon>
+                    <PeopleIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="All User" />
+                </ListItem>
+              </>
+            )}
           </List>
           <Divider />
           <List>

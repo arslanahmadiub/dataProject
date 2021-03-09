@@ -56,10 +56,18 @@ export default function SignIn() {
       setLoading(true);
 
       let { data } = await login(authData);
-      setLoading(false);
 
+      setLoading(false);
       if (data.status === 0) {
-        history.push("/admin");
+        if (data.role === "user") {
+          sessionStorage.setItem("userData", JSON.stringify(data.user));
+          sessionStorage.setItem("role", "user");
+          history.push("/user");
+        } else {
+          sessionStorage.setItem("userData", JSON.stringify(data.user));
+          sessionStorage.setItem("role", "admin");
+          history.push("/admin");
+        }
       } else if (data.status === 1) {
         setErrorMessage("Login Failed...");
       } else if (data.status === 2) {
@@ -67,13 +75,13 @@ export default function SignIn() {
       } else if (data.status === 3) {
         setErrorMessage("Something went wrong or server error...");
       }
-      setTimeout(() => {
-        setErrorMessage(null);
-      }, 3000);
     } catch (error) {
-      console.log(error);
       setLoading(false);
+      setErrorMessage("Something went wrong or server error...");
     }
+    setTimeout(() => {
+      setErrorMessage(null);
+    }, 3000);
   };
 
   let handelChange = (e) => {

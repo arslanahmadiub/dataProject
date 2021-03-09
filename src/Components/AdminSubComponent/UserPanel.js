@@ -1,15 +1,11 @@
 import React, { useState, useEffect } from "react";
 import MaterialTable from "material-table";
-import { getAllData } from "../../Services/authService";
+import { getUserData } from "../../Services/authService";
 
-const AllData = () => {
+const UserPanel = () => {
   const [state, setState] = useState({
     columns: [
-      {
-        title: "איש_קשר",
-        field: "איש_קשר",
-        editable: "never",
-      },
+      { title: "איש_קשר", field: "איש_קשר", editable: "never" },
       { title: "גרסת_קושחה", field: "גרסת_קושחה", editable: "never" },
       { title: "גרסת_תוכנה", field: "גרסת_תוכנה", editable: "never" },
       { title: "הגדרות_תקשורת", field: "הגדרות_תקשורת", editable: "never" },
@@ -42,7 +38,7 @@ const AllData = () => {
         field: "תאריך_גישה_אחרונה_למערכת",
         editable: "never",
       },
-      { title: "תאריך הקמה", field: "תאריך_הקמה", editable: "never" },
+      { title: "תאריך_הקמה", field: "תאריך_הקמה", editable: "never" },
       { title: "תוכנה", field: "תוכנה", editable: "never" },
     ],
     data: [],
@@ -52,8 +48,15 @@ const AllData = () => {
   let dataGet = async () => {
     try {
       setShow(true);
-      let { data } = await getAllData();
+      let storageData = sessionStorage.getItem("userData");
+      let finalData = JSON.parse(storageData);
+      let formData = new FormData();
+      formData.append("username", finalData.username);
+      formData.append("password", finalData.password);
+      formData.append("company", finalData.company);
+      let { data } = await getUserData(formData);
       setShow(false);
+
       setState({ ...state, data: data.data });
     } catch (error) {
       setShow(false);
@@ -68,8 +71,8 @@ const AllData = () => {
     <div style={{ position: "relative", marginTop: "2%" }}>
       <div>
         <MaterialTable
-          title="All Data"
           isLoading={show}
+          title="User Data"
           localization={{
             body: {
               emptyDataSourceMessage: (
@@ -94,4 +97,4 @@ const AllData = () => {
   );
 };
 
-export default AllData;
+export default UserPanel;

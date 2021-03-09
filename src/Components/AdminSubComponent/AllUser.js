@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import MaterialTable from "material-table";
 import { getAllUser } from "../../Services/authService";
-import CircularProgress from "@material-ui/core/CircularProgress";
+
 import { deleteUser } from "../../Services/authService";
 import { updateUser } from "../../Services/authService";
 import Alert from "@material-ui/lab/Alert";
@@ -32,7 +32,6 @@ const AllUser = () => {
       setShow(false);
       setState({ ...state, data: data.users });
     } catch (error) {
-      console.log(error);
       setShow(false);
     }
   };
@@ -48,8 +47,13 @@ const AllUser = () => {
     deleteUserData.append("company", oldData.company);
 
     try {
+      setShow(true);
+
       await deleteUser(deleteUserData);
-    } catch (error) {}
+      setShow(false);
+    } catch (error) {
+      setShow(false);
+    }
   };
 
   let updateData = async (newData, old) => {
@@ -68,7 +72,9 @@ const AllUser = () => {
       updateData.append("company", newData.company);
 
       try {
+        setShow(true);
         let { data } = await updateUser(updateData);
+        setShow(false);
 
         if (data.status === 0) {
           setSuccessMessage("User update successfully...");
@@ -78,6 +84,7 @@ const AllUser = () => {
           setErrorMessage("Something went wrong or server error...");
         }
       } catch (error) {
+        setShow(false);
         setErrorMessage("Something went wrong or server error...");
       }
     }
@@ -107,44 +114,44 @@ const AllUser = () => {
       <div style={{ position: "relative", marginTop: "2%" }}>
         <div>
           <MaterialTable
+            isLoading={show}
             title="All User"
+            localization={{
+              body: {
+                emptyDataSourceMessage: (
+                  <p
+                    style={{
+                      color: "green",
+                      display: show ? "none" : "flex",
+                    }}
+                  >
+                    No records to display
+                  </p>
+                ),
+              },
+            }}
             options={{ actionsColumnIndex: -1 }}
             columns={state.columns}
             data={state.data}
             editable={{
               onRowUpdate: (newData, oldData) =>
                 new Promise((resolve, reject) => {
+                  resolve();
                   updateData(newData, oldData);
-
-                  setTimeout(() => {
-                    resolve();
-                  }, 3000);
                 }),
               onRowDelete: (oldData) =>
                 new Promise((resolve) => {
-                  setTimeout(() => {
-                    resolve();
-                    deleteData(oldData);
+                  resolve();
+                  deleteData(oldData);
 
-                    setState((prevState) => {
-                      const data = [...prevState.data];
-                      data.splice(data.indexOf(oldData), 1);
-                      return { ...prevState, data };
-                    });
-                  }, 600);
+                  setState((prevState) => {
+                    const data = [...prevState.data];
+                    data.splice(data.indexOf(oldData), 1);
+                    return { ...prevState, data };
+                  });
                 }),
             }}
           />
-        </div>
-        <div
-          style={{
-            position: "absolute",
-            top: "40%",
-            left: "50%",
-            display: show ? "flex" : "none",
-          }}
-        >
-          <CircularProgress style={{ color: "#25AAE1" }} />
         </div>
       </div>
     </>
