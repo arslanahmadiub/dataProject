@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import axios from "axios";
 import { apiEndPoint } from "../../config.json";
 import Alert from "@material-ui/lab/Alert";
-
+import { getCompanies } from "../../Services/authService";
+import { setCompaniesData } from "../../action/authAction";
+import { useDispatch } from "react-redux";
 const useStyles = makeStyles((theme) => ({
   root: {
     "& > *": {
@@ -18,6 +20,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const UploadCSV = () => {
+  const dispatch = useDispatch();
   const [progress, setProgress] = useState(0);
   const [buffer, setBuffer] = useState(10);
   const [csvFile, setCsvFile] = useState(null);
@@ -30,51 +33,72 @@ const UploadCSV = () => {
 
   const classes = useStyles();
 
+  let getCompanyData = async () => {
+    try {
+      let { data } = await getCompanies();
+
+      if (data.status === 0) {
+        dispatch(setCompaniesData(data.companies));
+      }
+    } catch (error) {}
+  };
+
+  useEffect(() => {
+    getCompanyData();
+  }, []);
+
   let handelSelectFile = (e) => {
     setCsvFile(e.target.files[0]);
 
     setfileName(e.target.files[0].name);
   };
   let handelUpload = () => {
-    let formData = new FormData();
-    formData.append("file", csvFile);
+    if (csvFile) {
+      let formData = new FormData();
+      formData.append("file", csvFile);
 
-    let options = {
-      onUploadProgress: (progressEvent) => {
-        const { loaded, total } = progressEvent;
-        let percent = Math.floor((loaded * 100) / total);
-        if (percent > 0) {
-          setshowProgress(true);
-          setProgress(percent);
-          setBuffer(percent + 10);
-        }
-      },
-    };
+      let options = {
+        onUploadProgress: (progressEvent) => {
+          const { loaded, total } = progressEvent;
+          let percent = Math.floor((loaded * 100) / total);
+          if (percent > 0) {
+            setshowProgress(true);
+            setProgress(percent);
+            setBuffer(percent + 10);
+          }
+        },
+      };
 
-    axios
-      .post(uploadFileUrl, formData, options)
-      .then((res) => {
-        setshowProgress(false);
-        setSuccessMessage("Upload File Successfully..");
-        setProgress(0);
-        setBuffer(10);
-        setfileName(null);
-        setCsvFile(null);
-        setTimeout(() => {
-          setSuccessMessage(null);
-        }, 3000);
-      })
-      .catch((error) => {
-        setErrorMessage("Some thing wentwrong or server error...");
-        setshowProgress(false);
-        setProgress(0);
-        setBuffer(10);
-        setfileName(null);
-        setCsvFile(null);
-        setTimeout(() => {
-          setErrorMessage(null);
-        }, 3000);
-      });
+      axios
+        .post(uploadFileUrl, formData, options)
+        .then((res) => {
+          setshowProgress(false);
+          setSuccessMessage("Upload File Successfully..");
+          setProgress(0);
+          setBuffer(10);
+          setfileName(null);
+          setCsvFile(null);
+          setTimeout(() => {
+            setSuccessMessage(null);
+          }, 3000);
+        })
+        .catch((error) => {
+          setErrorMessage("Some thing wentwrong or server error...");
+          setshowProgress(false);
+          setProgress(0);
+          setBuffer(10);
+          setfileName(null);
+          setCsvFile(null);
+          setTimeout(() => {
+            setErrorMessage(null);
+          }, 3000);
+        });
+    } else {
+      setErrorMessage("File not selected...");
+      setTimeout(() => {
+        setErrorMessage(null);
+      }, 3000);
+    }
   };
   return (
     <>
@@ -95,7 +119,7 @@ const UploadCSV = () => {
             variant="contained"
             color="primary"
             component="span"
-            style={{ background: "#25AAE1", color: "white" }}
+            style={{ background: "#0f458d", color: "white" }}
           >
             Select File
           </Button>
@@ -104,7 +128,7 @@ const UploadCSV = () => {
           variant="contained"
           color="primary"
           component="span"
-          style={{ background: "#25AAE1", color: "white" }}
+          style={{ background: "#0f458d", color: "white" }}
           onClick={handelUpload}
         >
           Upload File

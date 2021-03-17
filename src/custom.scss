@@ -4,10 +4,68 @@
 
 #allData th,
 td {
-  border-left: 1px solid #e0e0e0;
+  border-left: 2px solid #e0e0e0;
 }
+th
+ {
+  border-left: 2px solid #e0e0e0;
+}
+th:first-child
+ {
+  border-left: none;
+
+}
+
+
+th
+ {
+  border-top: 2px solid #e0e0e0;
+}
+
+
 
 #allData th,
 td:first-child {
   border-left: none;
+}
+
+tr:hover {
+  background: #ebe9e9;
+  color: #0f458d !important;
+  font-weight: 500;
+}
+th span:hover {
+  color: white !important;
+}
+th span:focus {
+  color: white !important;
+}
+tr {
+  background: white;
+  color: #000 !important;
+}
+
+.MuiInputAdornment-positionEnd .MuiIconButton-root {
+  color: white !important;
+}
+
+.MuiInput-underline:before {
+  border-bottom: 1px solid white !important;
+}
+.MuiInput-underline::after {
+  border-bottom: 1px solid white !important;
+}
+
+
+table.MuiTable-root{
+  background-color: white !important;
+}
+
+
+
+td .MuiInput-underline:before {
+  border-bottom: 1px solid #0f458d !important;
+}
+td .MuiInput-underline::after {
+  border-bottom: 1px solid #0f458d !important;
 }

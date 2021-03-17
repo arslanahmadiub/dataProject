@@ -1,3 +1,4 @@
 {
-  "apiEndPoint": "http://68.183.79.231:8001/"
+  "apiEndPoint": "https://68.183.79.231:8001/",
+  "color": "#0f458d"
 }

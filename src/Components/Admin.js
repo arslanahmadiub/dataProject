@@ -25,6 +25,9 @@ import AllData from "./AdminSubComponent/AllData";
 import AllUser from "./AdminSubComponent/AllUser";
 import { useHistory } from "react-router-dom";
 import UserPanel from "./AdminSubComponent/UserPanel";
+import { color } from "../config.json";
+import { resetData } from "../action/authAction";
+import { useDispatch } from "react-redux";
 
 const drawerWidth = 240;
 
@@ -40,14 +43,14 @@ const useStyles = makeStyles((theme) => ({
   },
   appBarShift: {
     width: `calc(100% - ${drawerWidth}px)`,
-    marginLeft: drawerWidth,
     transition: theme.transitions.create(["margin", "width"], {
       easing: theme.transitions.easing.easeOut,
       duration: theme.transitions.duration.enteringScreen,
     }),
+    marginRight: drawerWidth,
   },
-  menuButton: {
-    marginRight: theme.spacing(2),
+  title: {
+    flexGrow: 1,
   },
   hide: {
     display: "none",
@@ -63,9 +66,9 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     alignItems: "center",
     padding: theme.spacing(0, 1),
-
+    // necessary for content to be below app bar
     ...theme.mixins.toolbar,
-    justifyContent: "flex-end",
+    justifyContent: "flex-start",
   },
   content: {
     flexGrow: 1,
@@ -74,18 +77,28 @@ const useStyles = makeStyles((theme) => ({
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
-    marginLeft: -drawerWidth,
+    marginRight: -drawerWidth,
+  },
+  drawerContainer: {
+    color: "#0f458d",
+  },
+  classList: {
+    color: "#0f458d",
+  },
+  iconColor: {
+    color: "#0f458d",
   },
   contentShift: {
     transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.easeOut,
       duration: theme.transitions.duration.enteringScreen,
     }),
-    marginLeft: 0,
+    marginRight: 0,
   },
 }));
 
 export default function PersistentDrawerLeft() {
+  const dispatch = useDispatch();
   let siteAddress = window.location.href;
   let finalUrl = siteAddress.slice(
     siteAddress.lastIndexOf("/") + 1,
@@ -127,6 +140,7 @@ export default function PersistentDrawerLeft() {
   let handelLogout = () => {
     sessionStorage.removeItem("userData");
     sessionStorage.removeItem("role");
+    dispatch(resetData());
     history.push("/");
   };
 
@@ -138,27 +152,38 @@ export default function PersistentDrawerLeft() {
           [classes.appBarShift]: open,
         })}
       >
-        <Toolbar style={{ background: "#25AAE1" }}>
+        <Toolbar style={{ background: "#0f458d" }}>
+          <Typography variant="h6" noWrap className={classes.title}>
+            <Typography variant="h6" noWrap>
+              {finalUrl === "admin"
+                ? "Data App Admin Panel"
+                : "Data App User Panel"}
+            </Typography>
+          </Typography>
           <IconButton
             color="inherit"
             aria-label="open drawer"
+            edge="end"
             onClick={handleDrawerOpen}
-            edge="start"
-            className={clsx(classes.menuButton, open && classes.hide)}
+            className={clsx(open && classes.hide)}
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap>
-            {finalUrl === "admin"
-              ? "Data App Admin Panel"
-              : "Data App User Panel"}
-          </Typography>
         </Toolbar>
       </AppBar>
+      <main
+        className={clsx(classes.content, {
+          [classes.contentShift]: open,
+        })}
+      >
+        <div className={classes.drawerHeader} />
+        {loadFragment()}
+      </main>
+
       <Drawer
         className={classes.drawer}
         variant="persistent"
-        anchor="left"
+        anchor="right"
         open={open}
         classes={{
           paper: classes.drawerPaper,
@@ -172,10 +197,10 @@ export default function PersistentDrawerLeft() {
               width: "100%",
             }}
           >
-            <h1 style={{ color: "#25AAE1" }}>Data App</h1>
+            <h1 style={{ color: "#0f458d" }}>Data App</h1>
           </div>
           <IconButton onClick={handleDrawerClose}>
-            {theme.direction === "ltr" ? (
+            {theme.direction === "rtl" ? (
               <ChevronLeftIcon />
             ) : (
               <ChevronRightIcon />
@@ -183,11 +208,16 @@ export default function PersistentDrawerLeft() {
           </IconButton>
         </div>
         <Divider />
+
         <div className={classes.drawerContainer}>
           <List>
             {finalUrl === "user" ? (
-              <ListItem button onClick={() => setFragment("USER_PANEL")}>
-                <ListItemIcon>
+              <ListItem
+                button
+                onClick={() => setFragment("USER_PANEL")}
+                className={classes.classList}
+              >
+                <ListItemIcon className={classes.iconColor}>
                   <ListAltIcon />
                 </ListItemIcon>
                 <ListItemText primary="User Data" />
@@ -195,29 +225,29 @@ export default function PersistentDrawerLeft() {
             ) : (
               <>
                 <ListItem button onClick={() => setFragment("CSV")}>
-                  <ListItemIcon>
+                  <ListItemIcon className={classes.iconColor}>
                     <ListAltIcon />
                   </ListItemIcon>
                   <ListItemText primary="Upload CSV" />
                 </ListItem>
 
                 <ListItem button onClick={() => setFragment("Create")}>
-                  <ListItemIcon>
+                  <ListItemIcon className={classes.iconColor}>
                     <PersonAddIcon />
                   </ListItemIcon>
                   <ListItemText primary="Create User" />
                 </ListItem>
                 <ListItem button onClick={() => setFragment("Data")}>
-                  <ListItemIcon>
+                  <ListItemIcon className={classes.iconColor}>
                     <StorageIcon />
                   </ListItemIcon>
                   <ListItemText primary="All Data" />
                 </ListItem>
                 <ListItem button onClick={() => setFragment("User")}>
-                  <ListItemIcon>
+                  <ListItemIcon className={classes.iconColor}>
                     <PeopleIcon />
                   </ListItemIcon>
-                  <ListItemText primary="All User" />
+                  <ListItemText primary="All Users" />
                 </ListItem>
               </>
             )}
@@ -225,7 +255,7 @@ export default function PersistentDrawerLeft() {
           <Divider />
           <List>
             <ListItem button onClick={handelLogout}>
-              <ListItemIcon>
+              <ListItemIcon className={classes.iconColor}>
                 <ExitToAppIcon />
               </ListItemIcon>
               <ListItemText primary="Logout" />
@@ -233,15 +263,6 @@ export default function PersistentDrawerLeft() {
           </List>
         </div>
       </Drawer>
-      <main
-        className={clsx(classes.content, {
-          [classes.contentShift]: open,
-        })}
-      >
-        <div className={classes.drawerHeader} />
-        {loadFragment()}
-        {/* <LaptopAccesories /> */}
-      </main>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import React from "react";
 import SignIn from "./Components/SignIn";
 import Admin from "./Components/Admin";
-import { Route, Switch } from "react-router-dom";
+import { Route, Switch, Redirect } from "react-router-dom";
 
 const App = () => {
   return (
@@ -9,7 +9,7 @@ const App = () => {
       <Route exact path="/">
         <SignIn />
       </Route>
-      {/* <Route
+      <Route
         exact
         path="/admin"
         render={(props) => {
@@ -31,18 +31,21 @@ const App = () => {
             sessionStorage.getItem("userData") === null ||
             sessionStorage.getItem("role") === "admin"
           ) {
-            return <SignIn to="/" />;
+            return <SignIn to="#/" />;
           } else {
-            return <Admin to="/user" />;
+            return <Admin to="#/user" />;
           }
         }}
-      /> */}
-      <Route exact path="/admin">
+      />
+      <Route path="*">
+        <Redirect to="/" />
+      </Route>
+      {/* <Route exact path="/admin">
         <Admin />
       </Route>
       <Route exact path="/user">
         <Admin />
-      </Route>
+      </Route> */}
     </Switch>
   );
 };
